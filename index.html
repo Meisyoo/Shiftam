@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>محاسبه سن بارداری</title>
+  <style>  
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; width: 100%; }
+    body {
+      font-family: 'Calibri', calibri;
+      direction: rtl; text-align: center;
+      background-image: url('background.png');
+      background-repeat: no-repeat; background-size: cover;
+      background-position: center center; background-attachment: fixed;
+      padding: 50px 20px 20px;
+    }
+    .container {
+      background-color: #F0FFFF; opacity: 90%;
+      padding: 20px; border-radius: 30px;
+      max-width: 700px; margin: 40px auto;
+    }
+
+    /* ===== نوار تاریخ امروز ===== */
+    .today-banner {
+      font-size: 18px;
+      font-weight: bold;
+      color: #08192f;
+      background-color: #FFEB3B;
+      display: inline-block;
+      padding: 8px 20px;
+      border-radius: 19px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 { color: #12350; font-size: 28px; margin-bottom: 20px; }
+    label { font-size: 16px; margin-bottom: 8px; display: block; text-align: right; }
+    .form-row { display: flex; justify-content: space-between; flex-wrap: wrap; margin-bottom: 15px; }
+    .form-row > div { flex: 1; margin: 0 10px; }
+    select, input {
+      width: 100%; padding: 12px; margin: 10px 0;
+      border-radius: 8px; font-family: 'Calibri';
+      border: 3px solid; font-size: 30px; height: 60px;
+      text-align: center;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-row button {
+      flex: 1; padding: 18px; border: none;
+      font-size: 20px; font-family: 'Calibri', sans-serif;
+      border-radius: 19px; cursor: pointer;
+    }
+    .btn-date { background-color: #e8716d; color: black; }
+    .btn-date:hover { background-color: #45a049; }
+    .btn-today { background-color: #4CAF50; color: white; font-weight: bold; }
+    .btn-today:hover { background-color: #45a049; }
+    .result-box { display: flex; justify-content: space-between; flex-wrap: wrap; margin-top: 20px; gap: 10px; }
+    .result-item {
+      background-color: #f1f1f1; border-radius: 8px; padding: 15px;
+      flex: 1; min-width: 120px; text-align: center;
+      font-size: 22px; font-weight: bold;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center; height: 130px;
+    }
+    .result-item:nth-child(1) { background-color: #9C27B0; color: white; }
+    .result-item:nth-child(2) { background-color: #FFEB3B; }
+    .result-item:nth-child(3) { background-color: #FF7043; }
+    .result-item:nth-child(4) { background-color: #4CAF50; }
+    .result-item:nth-child(5) { background-color: #2196F3; }
+    .select-month { font-size: 16px; padding: 12px; height: 60px; }
+  </style>
+  <link type="text/css" rel="stylesheet" href="css/style.css"/>
+  <!-- کتابخانه تبدیل تاریخ شمسی/میلادی -->
+  <script src="https://cdn.jsdelivr.net/npm/jalaali-js/dist/jalaali.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <!-- نوار تاریخ امروز (شمسی) -->
+    <div class="today-banner" id="todayBanner">امروز: —</div>
+
+    <h1>محاسبه سن بارداری</h1>
+
+    <form id="ageForm">
+      <!-- تاریخ شروع (شمسی) -->
+      <div class="form-row">
+        <div>
+          <label for="day">روز تولد/سونوگرافی:</label>
+          <input type="text" inputmode="numeric" id="day" placeholder="روز (۱ تا ۳۱)" required>
+        </div>
+        <div>
+          <label for="month">ماه تولد:</label>
+          <select id="month" class="select-month" required>
+            <option value="1">فروردین</option>
+            <option value="2">اردیبهشت</option>
+            <option value="3">خرداد</option>
+            <option value="4">تیر</option>
+            <option value="5">مرداد</option>
+            <option value="6">شهریور</option>
+            <option value="7">مهر</option>
+            <option value="8">آبان</option>
+            <option value="9">آذر</option>
+            <option value="10">دی</option>
+            <option value="11">بهمن</option>
+            <option value="12">اسفند</option>
+          </select>
+        </div>
+        <div>
+          <label for="year">سال تولد:</label>
+          <input type="text" inputmode="numeric" id="year" placeholder="مثلاً ۱۴۰۳" required>
+        </div>
+      </div>
+
+      <!-- تاریخ جاری (شمسی) -->
+      <div class="form-row">
+        <div>
+          <label for="currentDay">روز جاری:</label>
+          <input type="text" inputmode="numeric" id="currentDay" placeholder="روز جاری (۱ تا ۳۱)">
+        </div>
+        <div>
+          <label for="currentMonth">ماه جاری:</label>
+          <select id="currentMonth" class="select-month">
+            <option value="1">فروردین</option>
+            <option value="2">اردیبهشت</option>
+            <option value="3">خرداد</option>
+            <option value="4">تیر</option>
+            <option value="5">مرداد</option>
+            <option value="6">شهریور</option>
+            <option value="7">مهر</option>
+            <option value="8">آبان</option>
+            <option value="9">آذر</option>
+            <option value="10">دی</option>
+            <option value="11">بهمن</option>
+            <option value="12">اسفند</option>
+          </select>
+        </div>
+        <div>
+          <label for="currentYear">سال جاری:</label>
+          <input type="text" inputmode="numeric" id="currentYear" placeholder="مثلاً ۱۴۰۴">
+        </div>
+      </div>
+
+      <!-- دو دکمه کنار هم -->
+      <div class="btn-row">
+        <button type="submit" class="btn-date">📅  محاسبه تا تاریخ دستی</button>
+        <button type="button" id="btnToday" class="btn-today">⏱ محاسبه تا امروز</button>
+      </div>
+    </form>
+
+    <div id="result" class="result-box"></div>
+  </div>
+
+  <script>
+    /* =========================================================
+       ۱) ابزارهای کمکی
+    ========================================================= */
+
+    // تبدیل ارقام لاتین به فارسی
+    function toFa(n) {
+      const faDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+      return String(n).replace(/\d/g, d => faDigits[+d]);
+    }
+
+    // تبدیل ارقام فارسی/عربی به لاتین
+    function toEn(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+        .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+    }
+
+    // تبدیل تاریخ شمسی به میلادی
+    function jalaliToGregorian(jy, jm, jd) {
+      const g = jalaali.toGregorian(jy, jm, jd);
+      return new Date(g.gy, g.gm - 1, g.gd);
+    }
+
+    // گرفتن امروز به شمسی
+    function getTodayJalali() {
+      const now = new Date();
+      const j = jalaali.toJalaali(now.getFullYear(), now.getMonth() + 1, now.getDate());
+      return { jy: j.jy, jm: j.jm, jd: j.jd };
+    }
+
+    /* =========================================================
+       ۲) نمایش تاریخ امروز بالای عنوان
+    ========================================================= */
+    function showTodayBanner() {
+      const t = getTodayJalali();
+      const jm = String(t.jm).padStart(2, '0');
+      const jd = String(t.jd).padStart(2, '0');
+      document.getElementById('todayBanner').textContent =
+        `امروز: ${toFa(t.jy)}/${toFa(jm)}/${toFa(jd)}`;
+    }
+
+    /* =========================================================
+       ۳) بارگذاری مقادیر ذخیره‌شده در localStorage
+    ========================================================= */
+    function loadStoredValues() {
+      const map = {
+        day: 'birthDay', month: 'birthMonth', year: 'birthYear',
+        currentDay: 'currentDay', currentMonth: 'currentMonth', currentYear: 'currentYear'
+      };
+      for (const [id, key] of Object.entries(map)) {
+        const val = localStorage.getItem(key);
+        if (val) document.getElementById(id).value = val;
+      }
+    }
+
+    /* =========================================================
+       ۴) پاپ‌آپ نمایش هفته کامل
+    ========================================================= */
+    function showPopup(weeks) {
+      const popup = document.createElement('div');
+      popup.textContent = `${toFa(weeks)} هفته کامل`;
+      Object.assign(popup.style, {
+        position: 'fixed', top: '5%', left: '50%',
+        transform: 'translateX(-50%)',
+        backgroundColor: '#08192f', color: 'white',
+        padding: '20px 40px', fontSize: '24px',
+        fontFamily: 'Calibri, Tahoma, sans-serif',
+        borderRadius: '30px', boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        zIndex: '9999', opacity: '1', transition: 'opacity 0.3s ease'
+      });
+      document.body.appendChild(popup);
+      setTimeout(() => {
+        popup.style.opacity = '0';
+        setTimeout(() => popup.remove(), 500);
+      }, 5000);
+    }
+
+    /* =========================================================
+       ۵) هسته مشترک محاسبه
+    ========================================================= */
+    function calculate(currentDay, currentMonth, currentYear) {
+      const birthDay = parseInt(toEn(document.getElementById("day").value));
+      const birthMonth = parseInt(document.getElementById("month").value);
+      const birthYear = parseInt(toEn(document.getElementById("year").value));
+
+      if (!birthDay || !birthMonth || !birthYear) {
+        alert('لطفاً تاریخ تولد/سونوگرافی را کامل وارد کنید.');
+        return;
+      }
+
+      if (!jalaali.isValidJalaaliDate(birthYear, birthMonth, birthDay)) {
+        alert('تاریخ شمسی واردشده معتبر نیست.');
+        return;
+      }
+
+      // ذخیره در حافظه (اعداد لاتین)
+      localStorage.setItem('birthDay', birthDay);
+      localStorage.setItem('birthMonth', birthMonth);
+      localStorage.setItem('birthYear', birthYear);
+      localStorage.setItem('currentDay', currentDay);
+      localStorage.setItem('currentMonth', currentMonth);
+      localStorage.setItem('currentYear', currentYear);
+
+      // تبدیل شمسی → میلادی
+      const birthDate = jalaliToGregorian(birthYear, birthMonth, birthDay);
+      const currentDate = jalaliToGregorian(currentYear, currentMonth, currentDay);
+
+      let ageInMilliseconds = currentDate - birthDate;
+      if (ageInMilliseconds < 0) {
+        alert('تاریخ جاری نمی‌تواند قبل از تاریخ تولد باشد.');
+        return;
+      }
+
+      let ageInDays = ageInMilliseconds / (1000 * 3600 * 24);
+      let years = Math.floor(ageInDays / 365.25);
+      let remainingDays = ageInDays % 365.25;
+      let months = Math.floor(remainingDays / 30.44);
+      remainingDays = Math.floor(remainingDays % 30.44);
+      let weeks = Math.floor(remainingDays / 7);
+      remainingDays = Math.floor(remainingDays % 7);
+      let totalWeeks = Math.floor(ageInDays / 7);
+
+      // نمایش با ارقام فارسی
+      document.getElementById("result").innerHTML = `
+        <div class="result-item">${toFa(totalWeeks)} <br> هفته کامل</div>
+        <div class="result-item">${toFa(weeks)} هفته</div>
+        <div class="result-item">${toFa(remainingDays)} روز</div>
+        <div class="result-item">${toFa(months)} ماه</div>
+        <div class="result-item">${toFa(years)} سال</div>
+      `;
+      showPopup(totalWeeks);
+    }
+
+    /* =========================================================
+       ۶) رویدادها
+    ========================================================= */
+
+    // دکمه «محاسبه تا تاریخ»
+    document.getElementById("ageForm").addEventListener("submit", function (event) {
+      event.preventDefault();
+      const cd = parseInt(toEn(document.getElementById("currentDay").value));
+      const cm = parseInt(document.getElementById("currentMonth").value);
+      const cy = parseInt(toEn(document.getElementById("currentYear").value));
+
+      const todayJ = getTodayJalali();
+      calculate(
+        cd || todayJ.jd,
+        cm || todayJ.jm,
+        cy || todayJ.jy
+      );
+    });
+
+    // دکمه «محاسبه تا امروز»
+    document.getElementById("btnToday").addEventListener("click", function () {
+      const t = getTodayJalali();
+      document.getElementById("currentDay").value = toFa(t.jd);
+      document.getElementById("currentMonth").value = t.jm;
+      document.getElementById("currentYear").value = toFa(t.jy);
+      calculate(t.jd, t.jm, t.jy);
+    });
+
+    /* =========================================================
+       ۷) راه‌اندازی اولیه
+    ========================================================= */
+    window.addEventListener('DOMContentLoaded', function () {
+      showTodayBanner();
+      loadStoredValues();
+    });
+  </script>
+
+  <script type="text/javascript" src="js/script.js"></script>
+  <!-- این فایل توسط میثم اکبری ایجاد شده است -->
+</body>
+</html>
